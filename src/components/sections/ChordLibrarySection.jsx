@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react';
 import { Chord, Note, Interval } from 'tonal';
 import { getNotesOnFretboard, buildRoleMap } from '../../lib/fretboard';
+import { getVoicingsForChord } from '../../data/chordVoicings';
 import Fretboard from '../fretboard/Fretboard';
 import FretboardLegend from '../fretboard/FretboardLegend';
 import FretboardDisplayToggle from '../fretboard/FretboardDisplayToggle';
+import ChordDiagram from '../fretboard/ChordDiagram';
 import SectionLayout from '../layout/SectionLayout';
 
 // ── Chord categories with symbols ─────────────────────────────────────────
@@ -134,6 +136,12 @@ export default function ChordLibrarySection({ selectedKey, sectionElapsed, curre
       label: `${getIntervalLabel(iv)} (${chordData.notes[i]?.replace(/\d/, '') || ''})`,
     }));
   }, [chordData]);
+
+  // Get chord voicings for diagrams
+  const voicings = useMemo(() => {
+    if (!chordDef) return [];
+    return getVoicingsForChord(selectedKey, chordDef.symbol);
+  }, [selectedKey, chordDef]);
 
   // Search / filter chords across all categories
   const searchResults = useMemo(() => {
@@ -298,11 +306,31 @@ export default function ChordLibrarySection({ selectedKey, sectionElapsed, curre
               </div>
             )}
 
+            {/* Chord Voicing Diagrams */}
+            {voicings.length > 0 && (
+              <div>
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                  Common Voicings — {selectedKey}{chordDef?.symbol}
+                </h3>
+                <p className="text-xs text-slate-600 mb-3">Click any diagram to hear the chord</p>
+                <div className="flex gap-5 flex-wrap">
+                  {voicings.map((v, i) => (
+                    <ChordDiagram
+                      key={i}
+                      name={v.name}
+                      strings={v.strings}
+                      baseFret={v.baseFret}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Fretboard */}
             {positions.length > 0 && (
               <div>
                 <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-                  Fretboard — {selectedKey}{chordDef?.symbol}
+                  All Notes — {selectedKey}{chordDef?.symbol}
                 </h3>
                 <FretboardDisplayToggle value={displayMode} onChange={handleDisplayMode} />
                 <Fretboard positions={positions} displayMode={displayMode} />

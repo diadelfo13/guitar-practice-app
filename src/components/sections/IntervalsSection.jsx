@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { Note } from 'tonal';
 import { INTERVAL_DEFINITIONS, getIntervalNote } from '../../lib/musicTheory';
 import { getNotesOnFretboard, buildRoleMap, normalizePc } from '../../lib/fretboard';
 import { ROLE_COLORS, INTERVAL_TO_ROLE } from '../../lib/constants';
+import { playNote } from '../../lib/audioEngine';
 import Fretboard from '../fretboard/Fretboard';
 import FretboardDisplayToggle from '../fretboard/FretboardDisplayToggle';
 import SectionLayout from '../layout/SectionLayout';
@@ -110,6 +112,40 @@ export default function IntervalsSection({ selectedKey, sectionElapsed, currentS
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Ear Training Controls */}
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => playNote(Note.midi(selectedKey + '4'), 0.6)}
+            className="px-4 py-2 rounded-lg text-sm font-medium border bg-white/[0.04] border-white/[0.05] text-slate-300 hover:border-white/[0.12] hover:text-white transition-all active:scale-95"
+          >
+            🔊 Play Root ({selectedKey})
+          </button>
+          <button
+            onClick={() => playNote(Note.midi(intervalNote + '4'), 0.6)}
+            className="px-4 py-2 rounded-lg text-sm font-medium border bg-white/[0.04] border-white/[0.05] text-slate-300 hover:border-white/[0.12] hover:text-white transition-all active:scale-95"
+          >
+            🔊 Play {iv.abbr} ({intervalNote})
+          </button>
+          <button
+            onClick={() => {
+              playNote(Note.midi(selectedKey + '4'), 0.6);
+              setTimeout(() => playNote(Note.midi(intervalNote + '4'), 0.6), 400);
+            }}
+            className="px-4 py-2 rounded-lg text-sm font-medium border bg-violet-500/15 border-violet-500/30 text-violet-300 hover:bg-violet-500/25 transition-all active:scale-95"
+          >
+            🎵 Play Both (ascending)
+          </button>
+          <button
+            onClick={() => {
+              playNote(Note.midi(selectedKey + '4'), 0.6);
+              playNote(Note.midi(intervalNote + '4'), 0.6);
+            }}
+            className="px-4 py-2 rounded-lg text-sm font-medium border bg-white/[0.04] border-white/[0.05] text-slate-300 hover:border-white/[0.12] hover:text-white transition-all active:scale-95"
+          >
+            🎶 Play Together
+          </button>
         </div>
 
         {/* Fretboard */}
